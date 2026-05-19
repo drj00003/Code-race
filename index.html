@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Code Race</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a1a;--bg2:#111128;--bg3:#1a1a35;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#e8e8f0;--muted:#7777aa;
+  --green:#4ade80;--blue:#818cf8;--gold:#fbbf24;--red:#f87171;--accent:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* LOGIN */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:radial-gradient(ellipse at 30% 40%,rgba(99,102,241,0.15),transparent 60%),
+             radial-gradient(ellipse at 70% 70%,rgba(74,222,128,0.08),transparent 50%),var(--bg);
+}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px 36px;width:340px;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+.login-logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;letter-spacing:3px;
+  background:linear-gradient(90deg,#6366f1,#818cf8,#4ade80);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;margin-bottom:6px}
+.login-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:24px}
+.login-role{display:flex;gap:8px;margin-bottom:18px}
+.role-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.role-btn.active{background:rgba(99,102,241,0.2);border-color:var(--accent);color:var(--text)}
+.login-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.login-input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  border-radius:9px;padding:10px 13px;font-size:14px;font-family:'Inter',sans-serif;outline:none;margin-bottom:12px}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;padding:11px;font-size:14px;font-weight:600;cursor:pointer;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-family:'Inter',sans-serif;
+  transition:all .2s;margin-top:4px}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,0.4)}
+.login-err{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);
+  color:var(--red);border-radius:8px;padding:8px 12px;font-size:12px;margin-top:10px;display:none}
+
+/* APP */
+#app{display:none}
+header{background:linear-gradient(135deg,#0d0d25,#1a0a2e 50%,#0d1a25);
+  border-bottom:1px solid var(--border2);padding:13px 22px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;letter-spacing:2px;
+  background:linear-gradient(90deg,#6366f1,#818cf8,#4ade80);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo small{font-size:10px;color:var(--muted);display:block;font-family:'Inter',sans-serif;
+  -webkit-text-fill-color:var(--muted);letter-spacing:.5px;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-meta{font-size:11px;color:var(--muted);text-align:right}
+.logout-btn{font-size:11px;padding:5px 12px;cursor:pointer;border-radius:6px;
+  border:1px solid var(--border2);background:transparent;color:var(--muted);
+  font-family:'Inter',sans-serif;transition:all .15s}
+.logout-btn:hover{color:var(--red);border-color:var(--red)}
+
+.tabs{display:flex;gap:3px;padding:13px 22px 0;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:8px 16px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid transparent;border-radius:8px 8px 0 0;
+  color:var(--muted);background:transparent;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
+.tab:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.tab.active{background:var(--bg2);border-color:var(--border2);border-bottom-color:var(--bg2);color:var(--text)}
+.pane{display:none;padding:20px;max-width:980px;margin:0 auto}.pane.active{display:block}
+
+/* TRACK */
+.track-wrap{background:linear-gradient(135deg,#080818,#0e0e28);border:1px solid var(--border2);
+  border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.track-wrap::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,0.01) 60px,rgba(255,255,255,0.01) 61px)}
+.track-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;position:relative}
+.track-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:1.5px}
+.track-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+.leg-dot{width:7px;height:7px;border-radius:50%}
+.zone-bar{display:flex;margin-bottom:3px;gap:3px}
+.zone-g{flex:0 0 38%;background:rgba(74,222,128,0.07);border:1px dashed rgba(74,222,128,0.25);border-radius:4px;height:5px}
+.zone-b{flex:1;background:rgba(129,140,248,0.07);border:1px dashed rgba(129,140,248,0.25);border-radius:4px;height:5px}
+.zone-lbl{display:flex;font-size:9px;margin-bottom:8px}
+.zone-lbl span:first-child{flex:0 0 38%;text-align:center;color:rgba(74,222,128,0.5)}
+.zone-lbl span:last-child{flex:1;text-align:center;color:rgba(129,140,248,0.5)}
+.lane{display:flex;align-items:center;margin-bottom:5px;height:42px}
+.l-name{color:#bbb;font-size:10px;min-width:78px;text-align:right;padding-right:8px;
+  line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.l-road{flex:1;height:36px;background:linear-gradient(90deg,#0f0f28,#141430);
+  border-radius:5px;border:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden}
+.l-road::after{content:'';position:absolute;top:50%;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,0.05) 0,rgba(255,255,255,0.05) 10px,transparent 10px,transparent 18px);
+  transform:translateY(-50%)}
+.fl{position:absolute;left:38%;top:0;bottom:0;width:2px;
+  background:repeating-linear-gradient(180deg,var(--green) 0,var(--green) 4px,transparent 4px,transparent 8px);
+  opacity:.55;z-index:2}
+.car{position:absolute;top:50%;transform:translateY(-50%);
+  transition:left 1.2s cubic-bezier(.25,.46,.45,.94);z-index:3;
+  display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.car:hover .ci{transform:scale(1.2)}
+.ci{font-size:18px;line-height:1;transition:transform .15s}
+.cp{font-size:8px;color:#fff;background:rgba(0,0,0,.8);border-radius:3px;padding:1px 3px;white-space:nowrap;margin-top:1px;font-weight:500}
+.cc{font-size:9px;position:absolute;top:-11px;left:50%;transform:translateX(-50%);animation:bounce 1s infinite alternate}
+@keyframes bounce{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-3px)}}
+.sf{position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:12px;z-index:4}
+.ef{position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:12px;z-index:4}
+.tip-box{background:#0d0d25;color:#ddd;border-radius:10px;padding:9px 13px;
+  font-size:12px;margin-top:8px;border:1px solid var(--border2);display:none;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* GLOBAL */
+.global-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.group-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;position:relative;overflow:hidden;transition:transform .2s}
+.group-card:hover{transform:translateY(-2px)}
+.group-card::before{content:'';position:absolute;inset:0;opacity:.06;background:var(--gc);pointer-events:none}
+.gc-name{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+.gc-car{font-size:30px;margin-bottom:6px}
+.gc-leader{font-size:12px;font-weight:500;margin-bottom:4px;color:#fff}
+.gc-pts{font-family:'Orbitron',monospace;font-size:26px;font-weight:700;color:var(--gold)}
+.gc-badge{display:inline-block;margin-top:8px;font-size:10px;padding:3px 10px;border-radius:12px;
+  background:rgba(251,191,36,0.12);color:var(--gold);border:1px solid rgba(251,191,36,0.3)}
+.gc-sub{font-size:10px;color:var(--muted);margin-top:8px}
+
+/* LB */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.sv{font-size:26px;font-weight:600;font-family:'Orbitron',monospace}
+.sv.green{color:var(--green)}.sv.gold{color:var(--gold)}
+.sl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.lb-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.lb-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;
+  padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.lb-hdr{display:grid;grid-template-columns:32px 1fr 50px 75px 65px;gap:6px;
+  padding:8px 14px;background:rgba(255,255,255,0.02);font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.lb-row{display:grid;grid-template-columns:32px 1fr 50px 75px 65px;gap:6px;
+  padding:8px 14px;border-top:1px solid var(--border);align-items:center;font-size:12px;transition:background .15s}
+.lb-row:hover{background:var(--bg3)}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.b-ok{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.b-no{background:rgba(129,140,248,0.1);color:var(--blue);border:1px solid rgba(129,140,248,0.15)}
+.b-top{background:rgba(251,191,36,0.1);color:var(--gold);border:1px solid rgba(251,191,36,0.25)}
+.bw{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.bf{height:100%;border-radius:2px;transition:width 1s}
+
+/* ADMIN */
+.adm-grid{display:grid;grid-template-columns:1fr 280px;gap:14px;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px}
+.card h3{font-size:11px;font-weight:500;margin-bottom:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.group-tabs-adm{display:flex;gap:6px;margin-bottom:14px}
+.gta{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border2);border-radius:20px;
+  background:transparent;color:var(--muted);font-family:'Inter',sans-serif;transition:all .15s}
+.gta.active{background:rgba(99,102,241,0.2);border-color:var(--accent);color:var(--text)}
+.sr{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.sr label{font-size:11px;flex:1;display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden}
+.sr label em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal}
+.pc{display:flex;align-items:center;gap:3px}
+.pd{width:44px;text-align:center;font-size:11px;font-weight:600;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:5px;padding:3px 4px;color:var(--text);font-family:'Orbitron',monospace}
+.bs{width:26px;height:26px;border-radius:5px;border:1px solid var(--border2);
+  background:var(--bg3);cursor:pointer;font-size:12px;display:flex;align-items:center;
+  justify-content:center;color:var(--text);flex-shrink:0;font-family:'Inter',sans-serif;transition:all .1s}
+.bs:hover{background:rgba(99,102,241,0.25);border-color:var(--accent)}
+.bs:active{transform:scale(.93)}
+.af{display:flex;flex-direction:column;gap:7px}
+.fin{width:100%;font-size:12px;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;outline:none}
+.fin:focus{border-color:var(--accent)}
+.fin option{background:var(--bg3)}
+.btn-full{width:100%;padding:8px;font-size:12px;font-weight:500;cursor:pointer;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);color:var(--text);
+  margin-bottom:6px;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-full:hover{background:rgba(99,102,241,0.2);border-color:var(--accent)}
+.btn-full.primary{background:rgba(99,102,241,0.25);border-color:var(--accent);color:#a5b4fc}
+.btn-full.primary:hover{background:rgba(99,102,241,0.4)}
+.cfg-r{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:12px}
+.cfg-r label{color:var(--muted)}
+.sts{border-radius:8px;padding:7px 12px;font-size:12px;margin-bottom:12px;display:none}
+.sts.ok{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--green);display:block}
+.sts.er{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red);display:block}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:640px){
+  .global-grid{grid-template-columns:1fr}
+  .adm-grid{grid-template-columns:1fr}
+  .stat-row{gap:6px}
+  .pane{padding:12px}
+  .lb-hdr,.lb-row{grid-template-columns:28px 1fr 40px 60px}
+  .lb-hdr>div:last-child,.lb-row>div:last-child{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">⚡ CODE RACE</div>
+    <div class="login-sub">2º ESO — Computación &amp; Robótica</div>
+    <div class="login-role">
+      <button class="role-btn active" onclick="setRole('alumno',this)">👨‍🎓 Alumno</button>
+      <button class="role-btn" onclick="setRole('profesor',this)">👨‍🏫 Profesor</button>
+    </div>
+    <div id="prof-fields" style="display:none">
+      <label class="login-label">Usuario</label>
+      <input class="login-input" id="l-user" type="text" placeholder="Usuario" autocomplete="username">
+      <label class="login-label">Contraseña</label>
+      <input class="login-input" id="l-pass" type="password" placeholder="Contraseña"
+        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="login-err">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="logo">⚡ CODE RACE<small>2º ESO · Computación &amp; Robótica</small></div>
+    <div class="hdr-right">
+      <div class="hdr-meta">Meta: <span id="hdr-goal">100</span> pts &nbsp;·&nbsp; Bonus: <span id="hdr-max">200</span> pts</div>
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="sw('global',this)">🌍 Global</button>
+    <button class="tab" onclick="sw('race-ab',this)">🏎 2º ESO A/B</button>
+    <button class="tab" onclick="sw('race-c',this)">🏎 2º ESO C</button>
+    <button class="tab" onclick="sw('race-d',this)">🏎 2º ESO D</button>
+    <button class="tab" onclick="sw('lb',this)">🏆 Clasificación</button>
+    <button class="tab admin-only" id="tab-adm" style="display:none" onclick="sw('adm',this)">⚙️ Admin</button>
+  </div>
+
+  <div id="pane-global" class="pane active">
+    <div class="global-grid" id="global-cards"></div>
+    <div class="lb-wrap">
+      <div class="lb-title">🏆 Clasificación entre grupos — mejor alumno de cada clase</div>
+      <div id="global-lb"></div>
+    </div>
+  </div>
+
+  <div id="pane-race-ab" class="pane"><div id="track-ab"></div><div class="tip-box" id="tip-ab"></div></div>
+  <div id="pane-race-c"  class="pane"><div id="track-c"></div><div class="tip-box" id="tip-c"></div></div>
+  <div id="pane-race-d"  class="pane"><div id="track-d"></div><div class="tip-box" id="tip-d"></div></div>
+
+  <div id="pane-lb" class="pane">
+    <div class="stat-row" id="lb-stats"></div>
+    <div id="lb-groups"></div>
+  </div>
+
+  <div id="pane-adm" class="pane">
+    <div class="sts" id="sts"></div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>Configuración</h3>
+      <div class="cfg-r"><label>Puntos para nota máxima</label>
+        <input class="fin" style="width:100px" type="number" id="cfg-goal" value="100" min="10" onchange="upGoal()"></div>
+      <div class="cfg-r"><label>Puntos máximos zona bonus</label>
+        <input class="fin" style="width:100px" type="number" id="cfg-max" value="200" min="110" onchange="upMax()"></div>
+    </div>
+    <div class="group-tabs-adm">
+      <button class="gta active" onclick="swAdm('ab',this)">2º ESO A/B</button>
+      <button class="gta" onclick="swAdm('c',this)">2º ESO C</button>
+      <button class="gta" onclick="swAdm('d',this)">2º ESO D</button>
+    </div>
+    <div class="adm-grid">
+      <div class="card">
+        <h3>Ajustar puntos — <span id="adm-gname">2º ESO A/B</span></h3>
+        <div id="adm-stu"></div>
+      </div>
+      <div class="card">
+        <h3>Añadir alumno</h3>
+        <div class="af">
+          <input class="fin" type="text" id="new-name" placeholder="Nombre completo">
+          <select class="fin" id="new-car">
+            <option value="🏎">🏎 Rojo sport</option><option value="🚗">🚗 Azul</option>
+            <option value="🚙">🚙 Verde</option><option value="🚕">🚕 Amarillo</option>
+            <option value="🚓">🚓 Blanco</option><option value="🚌">🚌 Naranja</option>
+            <option value="🚐">🚐 Morado</option><option value="🛻">🛻 Pickup</option>
+            <option value="🚒">🚒 Rojo fuego</option><option value="🚑">🚑 Cruz</option>
+            <option value="🏍">🏍 Moto</option><option value="🛵">🛵 Scooter</option>
+            <option value="🚀">🚀 Cohete</option>
+          </select>
+          <button class="btn-full primary" onclick="addStu()">+ Añadir alumno</button>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <button class="btn-full" onclick="resetGroup()">↺ Reiniciar este grupo a 0</button>
+          <button class="btn-full" onclick="resetAll()">↺ Reiniciar TODOS los grupos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+const CREDS = { user:'drj00003', pass:'Padel2@@' };
+let isProf = false;
+let role = 'alumno';
+let admGroup = 'ab';
+
+function setRole(r, el) {
+  role = r;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('prof-fields').style.display = r === 'profesor' ? 'block' : 'none';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+function doLogin() {
+  if (role === 'alumno') { enterApp(false); return; }
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  if (u === CREDS.user && p === CREDS.pass) { enterApp(true); }
+  else { document.getElementById('login-err').style.display = 'block'; }
+}
+
+function enterApp(prof) {
+  isProf = prof;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('tab-adm').style.display = prof ? '' : 'none';
+  render();
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+  role = 'alumno'; isProf = false;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.role-btn').classList.add('active');
+  document.getElementById('prof-fields').style.display = 'none';
+  sw('global', document.querySelector('.tab'));
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const CARS = ['🏎','🚗','🚙','🚕','🚓','🚌','🚐','🛻','🚒','🚑','🏍','🛵','🚀','🚲','🛺'];
+const CC   = {'🏎':'#ef4444','🚗':'#3b82f6','🚙':'#22c55e','🚕':'#eab308','🚓':'#94a3b8',
+  '🚌':'#f97316','🚐':'#a855f7','🛻':'#78716c','🚒':'#fb923c','🚑':'#6ee7b7',
+  '🏍':'#f472b6','🛵':'#fbbf24','🚀':'#818cf8','🚲':'#34d399','🛺':'#fb7185'};
+
+const GI = {
+  ab:{ name:'2º ESO A/B', color:'#818cf8', names:['Emilio Alejandro','Javier','Aarón','Juli Rafael','Abraham','Francisco F.','Matías','José Antonio','Kristel Nayerly','Jason','Raúl Mihaita','Kalina','David','Jesús Jawad','Ángela','Francisco T.','Akemi Antuaneth','David Andrés'] },
+  c: { name:'2º ESO C',   color:'#4ade80', names:['Sebastián','Adán','Jessica','Ilyas','Brenda Juliana','Elisa Annabel','Miguel','Samuel','Scarlett Rebecca','Misael'] },
+  d: { name:'2º ESO D',   color:'#f97316', names:['Daniel Fernando','Pablo','Aitor','Pedro David','Gregorio','Stiven','José Antonio','Adiel Iker','Daniela','Paula Julieth','José','Juan','Yamil Cid','Mario','Axel Luis','Fernanda Marcela'] }
+};
+
+let S = { goal:100, maxPts:200, groups:{} };
+
+function save() { try { localStorage.setItem('cr4', JSON.stringify(S)); } catch(e){} }
+
+function load() {
+  try { const r = localStorage.getItem('cr4'); if(r) S = JSON.parse(r); } catch(e){}
+  ['ab','c','d'].forEach(k => {
+    if (!S.groups[k]) {
+      S.groups[k] = GI[k].names.map((name,i) => ({ id:k+i, name, car:CARS[i%CARS.length], pts:0 }));
+    }
+  });
+  document.getElementById('cfg-goal').value = S.goal;
+  document.getElementById('cfg-max').value  = S.maxPts;
+  document.getElementById('hdr-goal').textContent = S.goal;
+  document.getElementById('hdr-max').textContent  = S.maxPts;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() { renderGlobal(); ['ab','c','d'].forEach(renderTrack); renderLB(); renderAdm(); }
+
+function renderGlobal() {
+  const leaders = ['ab','c','d'].map(k => {
+    const sts = S.groups[k]||[];
+    const leader = sts.length ? sts.reduce((a,b)=>b.pts>a.pts?b:a, sts[0]) : null;
+    return { gi:GI[k], leader, count:sts.length, wm:sts.filter(s=>s.pts>=S.goal).length };
+  }).sort((a,b)=>(b.leader?.pts||0)-(a.leader?.pts||0));
+
+  document.getElementById('global-cards').innerHTML = leaders.map((g,i) => `
+    <div class="group-card" style="--gc:${g.gi.color}">
+      <div class="gc-name" style="color:${g.gi.color}">${g.gi.name}</div>
+      <div class="gc-car">${g.leader?.car||'🏎'}</div>
+      <div class="gc-leader">${g.leader?.name||'—'}</div>
+      <div class="gc-pts">${g.leader?.pts||0}</div>
+      ${i===0&&(g.leader?.pts||0)>0?'<div class="gc-badge">👑 Grupo líder</div>':''}
+      <div class="gc-sub">${g.wm} / ${g.count} con nota máxima</div>
+    </div>`).join('');
+
+  document.getElementById('global-lb').innerHTML = leaders.map((g,i) => {
+    const pts = g.leader?.pts||0;
+    const bp  = Math.round((pts/S.maxPts)*100);
+    const ri  = i===0?'🥇':i===1?'🥈':'🥉';
+    return `<div class="lb-row" style="grid-template-columns:32px 130px 1fr 54px 70px">
+      <div style="font-size:18px">${ri}</div>
+      <div style="font-weight:600;color:${g.gi.color};font-size:12px">${g.gi.name}</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="font-size:15px">${g.leader?.car||'—'}</span><span style="font-size:12px">${g.leader?.name||'—'}</span></div>
+      <div style="text-align:center;font-weight:600;font-family:'Orbitron',monospace;font-size:11px">${pts}</div>
+      <div><div class="bw"><div class="bf" style="width:${bp}%;background:${g.gi.color}"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTrack(gk) {
+  const gi  = GI[gk];
+  const sts = S.groups[gk]||[];
+  const el  = document.getElementById('track-'+gk);
+  if (!sts.length) { el.innerHTML='<p style="color:var(--muted);text-align:center;padding:24px">Sin alumnos</p>'; return; }
+  const leader = sts.reduce((a,b)=>b.pts>a.pts?b:a, sts[0]);
+  el.innerHTML = `
+    <div class="track-wrap">
+      <div class="track-hdr">
+        <div>
+          <div class="track-title" style="color:${gi.color}">⚡ ${gi.name}</div>
+          <div class="track-sub">Nota máxima: ${S.goal} pts &nbsp;·&nbsp; Zona campeón hasta ${S.maxPts} pts</div>
+        </div>
+        <div class="legend">
+          <div class="leg-i"><div class="leg-dot" style="background:var(--green)"></div>Nota máx.</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--blue)"></div>Bonus</div>
+          <div class="leg-i">👑 Líder</div>
+        </div>
+      </div>
+      <div class="zone-bar"><div class="zone-g"></div><div class="zone-b"></div></div>
+      <div class="zone-lbl"><span>▲ zona nota (0–${S.goal} pts)</span><span>★ zona campeón</span></div>
+      ${sts.map((s,i)=>{
+        const pct  = Math.min(s.pts/S.maxPts,1);
+        const left = Math.min(Math.max(3+pct*88,3),91);
+        const isL  = s.pts===leader.pts && s.pts>0;
+        return `<div class="lane">
+          <div class="l-name" title="${s.name}">${s.name.split(' ')[0]}</div>
+          <div class="l-road">
+            <span class="sf">🚦</span><div class="fl"></div><span class="ef">🏁</span>
+            <div class="car" style="left:${left}%" onclick="showTip('${gk}',${i})">
+              ${isL?'<div class="cc">👑</div>':''}
+              <div class="ci">${s.car}</div>
+              <div class="cp">${s.pts}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function showTip(gk, i) {
+  const s  = S.groups[gk][i];
+  const ok = s.pts >= S.goal;
+  const pB = s.pts>S.goal ? Math.round(((s.pts-S.goal)/(S.maxPts-S.goal))*100) : 0;
+  const t  = document.getElementById('tip-'+gk);
+  t.style.display = 'block';
+  t.innerHTML = `${s.car} <strong style="color:#fff">${s.name}</strong> — ${s.pts} pts &nbsp;|&nbsp;`+
+    (ok ? `<span style="color:var(--green)"> ✓ Nota máxima · Bonus: ${pB}%</span>`
+        : `<span style="color:var(--red)"> Faltan ${S.goal-s.pts} pts para nota máxima</span>`)+
+    (s.pts>=S.maxPts?' &nbsp;🏆 ¡Campeón!':'');
+}
+
+function renderLB() {
+  const all = [];
+  ['ab','c','d'].forEach(k=>(S.groups[k]||[]).forEach(s=>all.push({...s,gk:k})));
+  const sorted = [...all].sort((a,b)=>b.pts-a.pts);
+  const wm = sorted.filter(s=>s.pts>=S.goal).length;
+
+  document.getElementById('lb-stats').innerHTML = `
+    <div class="stat"><div class="sv">${all.length}</div><div class="sl">Total alumnos</div></div>
+    <div class="stat"><div class="sv green">${wm}</div><div class="sl">Nota máxima</div></div>
+    <div class="stat"><div class="sv gold">${sorted[0]?.pts||0}</div><div class="sl">Récord global</div></div>`;
+
+  document.getElementById('lb-groups').innerHTML = ['ab','c','d'].map(k=>{
+    const gi  = GI[k];
+    const sts = [...(S.groups[k]||[])].sort((a,b)=>b.pts-a.pts);
+    return `<div class="lb-wrap">
+      <div class="lb-title" style="color:${gi.color}">
+        <span style="width:10px;height:10px;border-radius:50%;background:${gi.color};display:inline-block"></span>
+        ${gi.name} &nbsp;<span style="color:var(--muted);font-size:10px">${sts.length} alumnos</span>
+      </div>
+      <div class="lb-hdr"><div>#</div><div>Alumno</div><div style="text-align:center">Pts</div><div>Estado</div><div>Progreso</div></div>
+      ${sts.map((s,i)=>{
+        const ok  = s.pts>=S.goal;
+        const top = i===0&&s.pts>0;
+        const ri  = i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span style="color:var(--muted)">${i+1}</span>`;
+        const bdg = top?`<span class="badge b-top">👑 Líder</span>`:ok?`<span class="badge b-ok">✓ Nota</span>`:`<span class="badge b-no">${S.goal-s.pts} faltan</span>`;
+        const bp  = Math.round((s.pts/S.maxPts)*100);
+        return `<div class="lb-row">
+          <div style="font-size:${i<3?15:12}px">${ri}</div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">${s.car}</span>${s.name}</div>
+          <div style="text-align:center;font-weight:600;font-family:'Orbitron',monospace;font-size:11px">${s.pts}</div>
+          <div>${bdg}</div>
+          <div><div class="bw"><div class="bf" style="width:${bp}%;background:${CC[s.car]||'#888'}"></div></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderAdm() {
+  const sts = S.groups[admGroup]||[];
+  document.getElementById('adm-gname').textContent = GI[admGroup].name;
+  document.getElementById('adm-stu').innerHTML = sts.map((s,i)=>`
+    <div class="sr">
+      <label><span style="font-size:13px">${s.car}</span><em>${s.name}</em></label>
+      <div class="pc">
+        <button class="bs" onclick="addP('${admGroup}',${i},-10)">−10</button>
+        <button class="bs" onclick="addP('${admGroup}',${i},-1)">−</button>
+        <span class="pd">${s.pts}</span>
+        <button class="bs" onclick="addP('${admGroup}',${i},1)">+</button>
+        <button class="bs" onclick="addP('${admGroup}',${i},10)">+10</button>
+        <button class="bs" onclick="remStu('${admGroup}',${i})" style="color:var(--red);margin-left:2px">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function addP(gk,i,d){ S.groups[gk][i].pts=Math.max(0,S.groups[gk][i].pts+d); save(); render(); }
+function remStu(gk,i){ const n=S.groups[gk][i].name; S.groups[gk].splice(i,1); save(); render(); toast(`${n} eliminado/a`,'ok'); }
+function addStu(){
+  const n=document.getElementById('new-name').value.trim();
+  const c=document.getElementById('new-car').value;
+  if(!n){ toast('Escribe un nombre','er'); return; }
+  S.groups[admGroup].push({id:Date.now(),name:n,car:c,pts:0});
+  document.getElementById('new-name').value='';
+  save(); render(); toast(`${n} añadido/a a ${GI[admGroup].name}`,'ok');
+}
+function resetGroup(){ S.groups[admGroup].forEach(s=>s.pts=0); save(); render(); toast(`${GI[admGroup].name} reiniciado`,'ok'); }
+function resetAll(){ ['ab','c','d'].forEach(k=>S.groups[k].forEach(s=>s.pts=0)); save(); render(); toast('Todos los grupos reiniciados a 0','ok'); }
+function upGoal(){ S.goal=parseInt(document.getElementById('cfg-goal').value)||100; document.getElementById('hdr-goal').textContent=S.goal; save(); render(); }
+function upMax(){  S.maxPts=parseInt(document.getElementById('cfg-max').value)||200; document.getElementById('hdr-max').textContent=S.maxPts; save(); render(); }
+
+function swAdm(gk, el){
+  admGroup=gk;
+  document.querySelectorAll('.gta').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderAdm();
+}
+
+function sw(n, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-'+n).classList.add('active');
+  ['ab','c','d'].forEach(k=>{ const t=document.getElementById('tip-'+k); if(t) t.style.display='none'; });
+}
+
+function toast(m,t){
+  const el=document.getElementById('sts');
+  el.textContent=m; el.className='sts '+t;
+  setTimeout(()=>el.className='sts',3000);
+}
+
+load();
+</script>
+</body>
+</html>
